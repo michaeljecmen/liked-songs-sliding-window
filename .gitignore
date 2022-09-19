@@ -1,0 +1,9 @@
+# do not commit personal details
+config.json
+
+# don't even look at this stuff
+__pycache__
+.vscode
+
+# for spotipy default key storage
+.cache-*
