@@ -69,7 +69,7 @@ def main():
 
         i += 1
     
-    print(f'made {i} changes to {config["SPOTIFY_SLIDING_PLAYLIST"]}')
+    # print(f'made {i} changes to {config["SPOTIFY_SLIDING_PLAYLIST"]}')
 
 if __name__ == "__main__":
     main()
