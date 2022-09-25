@@ -16,7 +16,7 @@ my solution to these problems is pretty rudimentary: keep a small playlist of on
 5. run ```cd liked-songs-sliding-window/```, then ```chmod +x update-sliding.py``` to enter the directory and mark the program as executable (second step not necessary, but makes cron-jobbing the app easier)
 6. run the authenticator script with ```python3 auth.py``` and give the app access to your spotify account when it opens a browser window and yells at you. the program should auto-refresh the token once you generate it for the first time, but if you ever need to reauthenticate the program for some reason re-run ```python3 auth.py```.
 7. on spotify, create a playlist with the name you provided in your ```config.json```. if you already had such a playlist, make sure it's empty before running the next step
-8. run ```python3 populate.py``` to fill the playlist for the first time. don't rearrange the songs on this playlist, the add order is important
+8. run ```python3 populate-playlist.py``` to fill the playlist for the first time. don't rearrange the songs on this playlist, the add order is important
 9. run the program regularly (I have mine running hourly) with ```python3 update-sliding.py``` or ```./update-sliding.py```, or, even better, set up a cron job on a box somewhere
 
 ## configuration
