@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# run "which python3" in your terminal and
+# replace "/usr/bin/python3" above with the output
 
 from helpers.config import read_config
 from helpers.spotify import get_spotify 
@@ -48,6 +50,7 @@ def get_tracklist(config, spotify, playlist_name):
 def main():
     # get config
     config = read_config()
+    # TODO add support for last month sliding window
 
     # auth with spotify
     spotify = get_spotify(config)

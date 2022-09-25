@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# run "which python3" in your terminal and
+# replace "/usr/bin/python3" above with the output
 
 from helpers.spotify import get_spotify
 from helpers.config import read_config
