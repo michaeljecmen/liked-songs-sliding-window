@@ -1,5 +1,6 @@
 import json
 from os.path import dirname, abspath
+from helpers.print import debug_print
 
 def get_absolute_rolling_songs_dir():
     return dirname(dirname(abspath(__file__))) + "/"
@@ -22,11 +23,11 @@ def read_config():
             error_msg += f'\"{field}\", '
     
     if error:
-        print('ERROR: your config.json is missing the following required fields:')
-        print('\t[ ', end='')
+        debug_print('ERROR: your config.json is missing the following required fields:')
+        debug_print('\t[ ', end='')
         error_msg = error_msg[:-2] # pop trailing comma and space
-        print(error_msg, end='')
-        print(' ]')
+        debug_print(error_msg, end='')
+        debug_print(' ]')
         exit(1)
 
     return config
@@ -34,3 +35,16 @@ def read_config():
 def write_config(config):
     with open(get_absolute_rolling_songs_dir() + "config/config.json", "w") as cfile:
         json.dump(config, cfile, indent=4)
+    
+# return none if wrong mode
+def get_liked_song_max(config):
+    if "MAINTAIN_NUM_SONGS" in config["UPDATE_RULE"]:
+        return config["UPDATE_RULE"]["MAINTAIN_NUM_SONGS"]
+
+    return None
+
+def get_liked_days_max(config):
+    if "MAINTAIN_NUM_DAYS" in config["UPDATE_RULE"]:
+        return config["UPDATE_RULE"]["MAINTAIN_NUM_DAYS"]
+
+    return None

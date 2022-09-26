@@ -2,9 +2,12 @@
 # run "which python3" in your terminal and
 # replace "/usr/bin/python3" above with the output
 
-from helpers.config import read_config
-from helpers.spotify import get_spotify 
-from helpers.liked import get_previous_n_liked_songs
+from helpers.config import read_config, get_liked_days_max, get_liked_song_max
+from helpers.spotify import get_spotify
+from helpers.liked import get_previous_n_liked_songs, get_all_liked_songs_within_last_n_days
+from helpers.print import set_debug, debug_print
+
+import sys
 
 # given a playlist, returns the full tracklist as a list of track ids
 def fetch_full_tracklist(spotify, playlist):
@@ -39,29 +42,14 @@ def get_tracklist(config, spotify, playlist_name):
             sliding_playlist_id = playlist['id']
             break
 
-    # by default these are sorted by most recent first, if I never rearrange the songs
+    # by default these are sorted by most recent first, if I rearrange the songs
     # in the playlist manually the invariant can be broken and the alg will break.
     # TODO account for that and go based off timestamps when added to the playlist (or
     # keep some state which tracks strict order of songs liked)
 
     return tracklist, sliding_playlist_id
 
-# this script assumes you have liked at least n songs
-def main():
-    # get config
-    config = read_config()
-    # TODO add support for last month sliding window
-
-    # auth with spotify
-    spotify = get_spotify(config)
-
-    # get tracklist for sliding by least recent
-    sliding_tracklist, sliding_playlist_id = get_tracklist(config, spotify, config["SPOTIFY_SLIDING_PLAYLIST"])
-
-    # get liked songs sorted by most recent
-    liked_songs = get_previous_n_liked_songs(config, spotify)
-
-    # then make playlist changes
+def update_playlist_song(spotify, sliding_tracklist, sliding_playlist_id, liked_songs):
     i = 0
     while liked_songs[i] not in sliding_tracklist:
         # add liked song to spotify playlist
@@ -72,7 +60,59 @@ def main():
 
         i += 1
     
-    # print(f'made {i} changes to {config["SPOTIFY_SLIDING_PLAYLIST"]}')
+    # debug_print(f'made {i} changes to sliding window playlist')
+
+def update_playlist_days(spotify, sliding_tracklist, sliding_playlist_id, liked_songs):
+    # go through sliding_tracklist and remove each one that's not in liked songs
+    debug_print(f'SLIDING TRACKLIST: {sliding_tracklist}')
+    for track_id in sliding_tracklist:
+        debug_print(f'for track {track_id}')
+        found = False
+        for liked_dict in liked_songs:
+            if liked_dict['id'] == track_id:
+                found = True
+                break
+        debug_print(f'\tfound: {found}')
+
+        if not found:
+            spotify.playlist_remove_all_occurrences_of_items(sliding_playlist_id, [ track_id ])
+            debug_print("\tremoved")
+
+    debug_print('done removing, now adding')
+    debug_print(f'LIKED SONGS: {liked_songs}')
+    # then go through liked_songs and add each one that's not in sliding tracklist
+    for song in liked_songs:
+        debug_print(f'for track {song["id"]}')
+        if song['id'] not in sliding_tracklist:
+            spotify.playlist_add_items(sliding_playlist_id, [ song['id'] ])
+            debug_print('\tadded')
+
+def main():
+    # get config
+    config = read_config()
+
+    # auth with spotify
+    spotify = get_spotify(config)
+
+    # get tracklist for sliding by least recent
+    sliding_tracklist, sliding_playlist_id = get_tracklist(config, spotify, config["SPOTIFY_SLIDING_PLAYLIST"])
+
+    num = get_liked_song_max(config)
+    if num is not None:
+        # this script assumes you have liked at least n songs
+        liked_songs = get_previous_n_liked_songs(spotify, num)
+        update_playlist_song(spotify, sliding_tracklist, sliding_playlist_id, liked_songs)
+        return
+
+    num = get_liked_days_max(config)
+    if num is None:
+        debug_print("ERROR: UPDATE_CONFIG does not have a valid rule. give the README another look")
+        exit()
+
+    liked_songs = get_all_liked_songs_within_last_n_days(spotify, num)
+    update_playlist_days(spotify, sliding_tracklist, sliding_playlist_id, liked_songs)
 
 if __name__ == "__main__":
+    # debug printing on for any invocation with more than the required args
+    set_debug(len(sys.argv) > 1)
     main()
