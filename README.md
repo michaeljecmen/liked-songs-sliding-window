@@ -1,5 +1,7 @@
 # liked-songs-sliding-window: maintain a shorter playlist of your recently liked songs 
 
+### important: this repo is now out of date. head on over to https://github.com/michaeljecmen/spotify-manager/ for the updated module and its siblings
+
 is your liked songs playlist on spotify too long? do you listen to enough new music that you occasionally lose great tracks to the flow of time? do you wish your "on repeat" playlist wasn't just a strict most-played in last x days?
 
 my solution to these problems is pretty rudimentary: keep a small playlist of only the most recent liked songs. I've currently got mine set up to maintain a playlist of songs I've liked in the previous 30 days, but you can also change the rule to maintain the playlist (last n songs liked or all songs liked in the last n days).
